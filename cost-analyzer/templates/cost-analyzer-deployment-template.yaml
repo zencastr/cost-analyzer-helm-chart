@@ -107,7 +107,7 @@ spec:
         {{ end }}
           resources:
             requests:
-              cpu: "10m"
+              cpu: "100m"
               memory: "55Mi"
             {{- if .Values.kubecost }}
             {{- if .Values.kubecost.limits }}
@@ -155,7 +155,7 @@ spec:
           name: cost-model
           resources:
             requests:
-              cpu: "10m"
+              cpu: "200m"
               memory: "55Mi"
             {{- if .Values.kubecostModel }}
             {{- if .Values.kubecostModel.limits }}
