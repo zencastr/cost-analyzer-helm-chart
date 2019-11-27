@@ -1,0 +1,25 @@
+{{- if .Values.receiver.enabled }}
+{{- if .Values.receiver.persistentVolume.enabled }}
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: {{ include "thanos.componentname" (list $ "receiver-pvc") }}
+  labels:
+    app.kubernetes.io/name: {{ include "thanos.name" . }}
+    helm.sh/chart: {{ include "thanos.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/version: {{ .Chart.AppVersion | replace "+" "_" }}
+    app.kubernetes.io/component: receiver-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+    {{- if .Values.receiver.persistentVolume.size }}
+      storage: {{ .Values.receiver.persistentVolume.size }}
+    {{- else }}
+      storage: 2Gi
+    {{ end }}
+{{- end -}}
+{{- end -}}

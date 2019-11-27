@@ -1,0 +1,107 @@
+{{ if .Values.receiver.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "thanos.componentname" (list $ "receiver") }}
+  labels:
+    app.kubernetes.io/name: {{ include "thanos.name" . }}
+    helm.sh/chart: {{ include "thanos.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/version: {{ .Chart.AppVersion | replace "+" "_" }}
+    app.kubernetes.io/component: receiver
+{{ with .Values.receiver.deploymentLabels }}{{ toYaml . | indent 4 }}{{ end }}
+  {{- with .Values.receiver.deploymentAnnotations }}
+  annotations: {{ toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  replicas: {{ .Values.receiver.replicaCount | default 1 }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "thanos.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/component: receiver
+  template:
+    metadata:
+      labels: 
+{{ with .Values.receiver.labels }}{{ toYaml . | indent 8 }}{{ end }}
+        app.kubernetes.io/name: {{ include "thanos.name" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+        app.kubernetes.io/component: receiver
+      {{- with  .Values.receiver.annotations }}
+      annotations: {{ toYaml . | nindent 8 }}
+      {{- end }}
+      {{- if .Values.receiver.metrics.annotations.enabled  }}
+      prometheus.io/scrape: "true"
+      prometheus.io/port: "{{ .Values.receiver.http.port }}"
+      {{- end }}
+    spec:
+      containers:
+      - name: thanos-receiver
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        args:
+        - "receive"
+        - "--tsdb.path=/var/thanos/receiver/data"
+        - "--log.level={{ .Values.receiver.logLevel }}"
+        - "--remote-write.address=0.0.0.0:{{ .Values.receiver.receiveEndpoint.port }}"
+        - "--http-address=0.0.0.0:{{ .Values.receiver.http.port }}"
+        - "--grpc-address=0.0.0.0:{{ .Values.receiver.grpc.port }}"
+        - "--objstore.config-file=/etc/config/object-store.yaml"
+        - "--label=receiver=\"true\""
+        {{- if .Values.receiver.extraArgs }}
+        {{ toYaml .Values.receiver.extraArgs | nindent 8 }}
+        {{- end }}
+        ports:
+        - name: http
+          containerPort: {{ .Values.receiver.http.port }}
+        - name: grpc
+          containerPort: {{ .Values.receiver.grpc.port }}
+        - name: endpoint
+          containerPort: {{ .Values.receiver.receiveEndpoint.port }}
+        volumeMounts:
+        - name: receiver-pvc
+          mountPath: /var/thanos/receiver/data
+        - name: config-volume
+          mountPath: /etc/config
+          readOnly: true
+        - name: data
+          mountPath: /var/thanos/receiver
+        {{- if .Values.receiver.certSecretName }}
+        - mountPath: /etc/certs
+          name: {{ .Values.receiver.certSecretName }}
+          readOnly: true
+        {{- end }}
+        resources:
+          {{ toYaml .Values.receiver.resources | nindent 10 }}
+      volumes:
+      - name: receiver-pvc
+        persistentVolumeClaim:
+          claimName: {{ include "thanos.componentname" (list $ "receiver-pvc") }}
+      - name: data
+        emptyDir: {}
+      - name: config-volume
+        secret:
+          secretName: {{ include "thanos.secretname" . }}
+      {{- if .Values.receiver.certSecretName }}
+      - name: {{ .Values.receiver.certSecretName }}
+        secret:
+          defaultMode: 420
+          secretName: {{ .Values.receiver.certSecretName }}
+      {{- end }}
+      {{- with .Values.receiver.securityContext }}
+      securityContext: {{ toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.receiver.nodeSelector }}
+      nodeSelector: {{ toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.receiver.affinity }}
+      affinity: {{ toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.receiver.tolerations }}
+      tolerations: {{ toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with  .Values.receiver.serviceAccount }}
+      serviceAccountName: "{{ . }}"
+      {{- end }}
+{{- end }}

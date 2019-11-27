@@ -1,0 +1,93 @@
+{{- if .Values.receiver.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "thanos.componentname" (list $ "receiver") }}-grpc
+  {{- with .Values.receiver.grpc.service.annotations }}
+  annotations: {{ toYaml . | nindent 4 }}
+  {{- end }}
+  labels:
+    app.kubernetes.io/name: {{ include "thanos.name" . }}
+    helm.sh/chart: {{ include "thanos.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/version: {{ $.Chart.AppVersion | replace "+" "_" }}
+    app.kubernetes.io/component: receiver
+{{ with .Values.receiver.grpc.service.labels }}{{ toYaml . | indent 4 }}{{ end }}
+spec:
+  type: ClusterIP
+  clusterIP: None
+  ports:
+    - port: {{ .Values.receiver.grpc.port }}
+      targetPort: {{ .Values.receiver.grpc.port }}
+      protocol: TCP
+      name: grpc
+  selector:
+    app.kubernetes.io/name: {{ include "thanos.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: receiver
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "thanos.componentname" (list $ "receiver") }}-http
+  {{- with .Values.receiver.http.service.annotations }}
+  annotations: {{ toYaml .| nindent 4 }}
+  {{- end }}
+  labels:
+    app.kubernetes.io/name: {{ include "thanos.name" . }}
+    helm.sh/chart: {{ include "thanos.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/version: {{ $.Chart.AppVersion | replace "+" "_" }}
+    app.kubernetes.io/component: receiver
+{{ with .Values.receiver.http.service.labels }}{{ toYaml . | indent 4 }}{{ end }}
+spec:
+  type: {{ .Values.receiver.http.service.type }}
+  {{- if .Values.receiver.http.service.externalTrafficPolicy }}
+  externalTrafficPolicy: {{ .Values.receiver.http.externalTrafficPolicy }}
+  {{- end }}
+  ports:
+    - port: {{ .Values.receiver.http.port }}
+      targetPort: {{ .Values.receiver.http.port }}
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: {{ include "thanos.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: receiver
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "thanos.componentname" (list $ "receiver") }}-endpoint
+  {{- with .Values.receiver.receiveEndpoint.service.annotations }}
+  annotations: {{ toYaml .| nindent 4 }}
+  {{- end }}
+  labels:
+    app.kubernetes.io/name: {{ include "thanos.name" . }}
+    helm.sh/chart: {{ include "thanos.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/version: {{ $.Chart.AppVersion | replace "+" "_" }}
+    app.kubernetes.io/component: receiver
+{{ with .Values.receiver.receiveEndpoint.service.labels }}{{ toYaml . | indent 4 }}{{ end }}
+spec:
+  type: {{ .Values.receiver.receiveEndpoint.service.type }}
+  {{- if .Values.receiver.receiveEndpoint.service.externalTrafficPolicy }}
+  externalTrafficPolicy: {{ .Values.receiver.receiveEndpoint.externalTrafficPolicy }}
+  {{- end }}
+  ports:
+    - port: {{ .Values.receiver.receiveEndpoint.port }}
+      targetPort: {{ .Values.receiver.receiveEndpoint.port }}
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: {{ include "thanos.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: receiver
+{{- end -}}

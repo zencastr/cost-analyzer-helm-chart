@@ -3,6 +3,10 @@ global:
     enabled: true
 
 prometheus:
+  serverFiles:
+    prometheus.yml:
+      remote_write:
+        - url: http://kubecost-thanos-receiver-endpoint.kubecost:10908/api/v1/receive
   server:
     extraArgs:
       storage.tsdb.min-block-duration: 2h
@@ -16,13 +20,14 @@ prometheus:
     enableAdminApi: true
     sidecarContainers:
     - name: thanos-sidecar
-      image: improbable/thanos:v0.6.0
+      image: thanosio/thanos:v0.8.1
       args:
       - sidecar
       - --log.level=debug
       - --tsdb.path=/data/
       - --prometheus.url=http://127.0.0.1:9090
       - --objstore.config-file=/etc/config/object-store.yaml
+      - --min-time=-3h
       env:
       - name: POD_NAME
         valueFrom:
@@ -50,8 +55,11 @@ thanos:
     resources: 
       requests:
         memory: "2Gi"
+  receiver:
+    enabled: false  
   query: 
     enabled: true
+    replicaLabel: replica
   # Thanos Sidecar Service Discovery
   sidecar:
     enabled: true
