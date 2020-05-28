@@ -161,15 +161,15 @@ data:
             proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
         }
 
-        {{- if .Values.saml.enabled }}
-        location /auth {
-            proxy_pass http://model/isAuthenticated;
-        }
-        {{- end }}
-        {{- if .Values.saml.rbac.enabled }}
-        location /authrbac {
-            proxy_pass http://model/isAdminAuthenticated;
-        }
-        {{- end }}
 {{ end }}
+    {{- if .Values.saml.enabled }}
+    location /auth {
+        proxy_pass http://model/isAuthenticated;
     }
+    {{- end }}
+    {{- if .Values.saml.rbac.enabled }}
+    location /authrbac {
+        proxy_pass http://model/isAdminAuthenticated;
+    }
+    {{- end }}
+}
