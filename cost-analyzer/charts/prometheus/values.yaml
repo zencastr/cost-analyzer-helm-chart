@@ -386,7 +386,9 @@ configmapReload:
 
 kubeStateMetrics:
   ## If false, kube-state-metrics sub-chart will not be installed
-  ## Please see https://github.com/helm/charts/tree/master/stable/kube-state-metrics for configurable values
+  ## Please see
+  ## https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-state-metrics
+  ## for configurable values
   ##
   enabled: true
 
