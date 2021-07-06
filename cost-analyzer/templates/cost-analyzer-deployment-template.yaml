@@ -117,14 +117,6 @@ spec:
           secret:
             secretName: azure-storage-config
         {{- end }}
-        {{- if .Values.kubecostProductConfigs.cloudIntegrationSecret }}
-        - name: cloud-integration
-          secret:
-            secretName: {{ .Values.kubecostProductConfigs.cloudIntegrationSecret }}
-            items:
-              - key: cloud-integration.json
-                path: cloud-integration.json
-        {{- end }}
         {{- if .Values.kubecostProductConfigs.clusters }}
         - name: kubecost-clusters
           configMap:
@@ -282,10 +274,6 @@ spec:
             {{- if or .Values.kubecostProductConfigs.azureStorageSecretName .Values.kubecostProductConfigs.azureStorageCreateSecret}}
             - name: azure-storage-config
               mountPath: /var/azure-storage-config
-            {{- end }}
-            {{- if .Values.kubecostProductConfigs.cloudIntegrationSecret}}
-            - name: cloud-integration
-              mountPath: /var/cloud-integration
             {{- end }}
             {{- if or .Values.kubecostProductConfigs.serviceKeySecretName .Values.kubecostProductConfigs.createServiceKeySecret }}
             - name: service-key-secret
