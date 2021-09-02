@@ -1,8 +1,8 @@
 global:
   # zone: cluster.local (use only if your DNS server doesn't live in the same zone as kubecost)
   prometheus:
-    enabled: true # If false, Prometheus will not be installed -- only actively supported on paid Kubecost plans
-    fqdn: http://cost-analyzer-prometheus-server.default.svc #example fqdn. Ignored if enabled: true
+    enabled: false # If false, Prometheus will not be installed -- only actively supported on paid Kubecost plans
+    #fqdn: http://cost-analyzer-prometheus-server.default.svc #example fqdn. Ignored if enabled: true
     # insecureSkipVerify : false # If true, kubecost will not check the TLS cert of prometheus
     # queryServiceBasicAuthSecretName: dbsecret # kubectl create secret generic dbsecret -n kubecost --from-file=USERNAME --from-file=PASSWORD
     # queryServiceBearerTokenSecretName: dbsecret  # kubectl create secret generic mcdbsecret -n kubecost --from-file=TOKEN
@@ -16,10 +16,10 @@ global:
     # queryOffset: 3h # The offset to apply to all thanos queries in order to achieve syncronization on all cluster block stores
 
   grafana:
-    enabled: true # If false, Grafana will not be installed
-    domainName: cost-analyzer-grafana.default.svc #example grafana domain Ignored if enabled: true
-    scheme: "http" # http or https, for the domain name above.
-    proxy: true # If true, the kubecost frontend will route to your grafana through its service endpoint
+    enabled: false # If false, Grafana will not be installed
+    #domainName: cost-analyzer-grafana.default.svc #example grafana domain Ignored if enabled: true
+    #scheme: "http" # http or https, for the domain name above.
+    #proxy: true # If true, the kubecost frontend will route to your grafana through its service endpoint
 
   notifications:
     # Kubecost alerting configuration
@@ -556,7 +556,7 @@ reporting:
   valuesReporting: true
 
 serviceMonitor:
-  enabled: false
+  enabled: true
   additionalLabels: {}
 
 prometheusRule:
