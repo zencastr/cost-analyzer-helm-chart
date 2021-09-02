@@ -17,9 +17,9 @@ global:
 
   grafana:
     enabled: false # If false, Grafana will not be installed
-    #domainName: cost-analyzer-grafana.default.svc #example grafana domain Ignored if enabled: true
-    #scheme: "http" # http or https, for the domain name above.
-    #proxy: true # If true, the kubecost frontend will route to your grafana through its service endpoint
+    domainName: https://grafana.ops.gcp.zencastr.com/
+    scheme: "https" # http or https, for the domain name above.
+    proxy: true # If true, the kubecost frontend will route to your grafana through its service endpoint
 
   notifications:
     # Kubecost alerting configuration
