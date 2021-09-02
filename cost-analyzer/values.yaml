@@ -557,7 +557,8 @@ reporting:
 
 serviceMonitor:
   enabled: true
-  additionalLabels: {}
+  additionalLabels:
+    release: gke-ops-prometheus-operator
 
 prometheusRule:
   enabled: false
